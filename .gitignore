@@ -6,3 +6,7 @@ node_modules/
 
 # configs
 .env.local
+
+# dev db
+prisma/dev.db
+prisma/migrations/

@@ -1,14 +1,18 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import prisma from "../../lib/prisma";
+import { unsetAuthCookies } from "next-firebase-auth";
+import initAuth from "lib/firebase";
+
+initAuth();
 
 export default async function handle(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const result = await prisma.user.create({
-    data: {
-      ...req.body,
-    },
-  });
-  res.json(result);
+  try {
+    await unsetAuthCookies(req, res);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Unexpected error." });
+  }
+  res.status(200);
 }

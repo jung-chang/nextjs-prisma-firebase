@@ -11,14 +11,30 @@ export default async function handle(
   res: NextApiResponse
 ) {
   const { email, password } = req.body;
+
   try {
     const firebaseUser = await firebase
       .auth()
-      .signInWithEmailAndPassword(email, password);
-    await setAuthCookies(req, res);
+      .signInWithEmailAndPassword(email, password)
+      .catch((error) => {
+        throw Error(`Failed to sign into firebase: ${error}`);
+      });
+
+    const user = await prisma.user
+      .findUnique({
+        where: { firebaseId: firebaseUser.user.uid },
+      })
+      .catch((error) => {
+        throw Error(`Failed to get user: ${error}`);
+      });
+
+    await setAuthCookies(req, res).catch((error) => {
+      throw Error(`Failed to set auth cookie: ${error}`);
+    });
+
+    return res.status(200).json({ user });
   } catch (e) {
     console.error(e);
     return res.status(500).json({ error: "Unexpected error." });
   }
-  return res.status(200).json({ status: true });
 }
