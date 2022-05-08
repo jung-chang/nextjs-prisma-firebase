@@ -29,14 +29,14 @@ const initAuth = () => {
     cookies: {
       name: "App",
       keys: [
-        process.env.COOKIE_SECRET_CURRENT,
-        process.env.COOKIE_SECRET_PREVIOUS,
+        process.env.FIREBASE_SECRET_CURRENT,
+        process.env.FIREBASE_SECRET_PREVIOUS,
       ],
       httpOnly: true,
       maxAge: 3 * 60 * 60 * 24 * 1000, // 3 days
       overwrite: true,
       path: "/",
-      sameSite: "strict",
+      sameSite: "lax",
       secure: process.env.NEXT_PUBLIC_COOKIE_SECURE === "true",
       signed: true,
     },

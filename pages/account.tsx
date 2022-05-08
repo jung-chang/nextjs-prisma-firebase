@@ -12,7 +12,11 @@ type Props = {
   authUser: any;
 };
 
-const UserPage: React.FC<Props> = ({ user }: { user: Prisma.UserSelect }) => {
+const AccountPage: React.FC<Props> = ({
+  user,
+}: {
+  user: Prisma.UserSelect;
+}) => {
   return (
     <Layout>
       <div className="page">
@@ -35,4 +39,4 @@ export const getServerSideProps = withAuthUserTokenSSR({
 
 export default withAuthUser({
   whenUnauthedAfterInit: AuthAction.REDIRECT_TO_LOGIN,
-})(UserPage);
+})(AccountPage);

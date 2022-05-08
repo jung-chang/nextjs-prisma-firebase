@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { setAuthCookies } from "next-firebase-auth";
+import { setAuthCookies, unsetAuthCookies } from "next-firebase-auth";
 import prisma from "lib/prisma";
 import initAuth from "lib/firebase";
 import firebase from "firebase/app";
@@ -10,7 +10,13 @@ export default async function handle(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const { email, password } = req.body;
+  if (req.method !== "POST") {
+    res.status(403);
+    return;
+  }
+
+  const body = JSON.parse(req.body);
+  const { email, password } = body;
 
   try {
     const firebaseUser = await firebase
@@ -19,6 +25,8 @@ export default async function handle(
       .catch((error) => {
         throw Error(`Failed to sign into firebase: ${error}`);
       });
+
+    console.log({ firebaseUser });
 
     const user = await prisma.user
       .findUnique({

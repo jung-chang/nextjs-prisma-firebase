@@ -3,12 +3,10 @@ import initAuth from "lib/firebase";
 
 initAuth();
 
-function App({ Component, pageProps }) {
-  return (
+const App = ({ Component, pageProps }) => (
     <Layout>
       <Component {...pageProps} />
     </Layout>
   );
-}
 
 export default App;
