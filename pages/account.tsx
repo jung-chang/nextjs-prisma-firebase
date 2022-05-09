@@ -1,6 +1,7 @@
 import React from "react";
 import { Prisma } from "@prisma/client";
 import Layout from "components/Layout";
+import firebase from "firebase/app";
 import {
   withAuthUser,
   withAuthUserTokenSSR,
@@ -9,7 +10,6 @@ import {
 
 type Props = {
   user: Prisma.UserSelect;
-  authUser: any;
 };
 
 const AccountPage: React.FC<Props> = ({
@@ -17,11 +17,20 @@ const AccountPage: React.FC<Props> = ({
 }: {
   user: Prisma.UserSelect;
 }) => {
+  console.log({ user });
+
+  const logout = async () => {
+    await firebase.auth().signOut();
+  };
+
   return (
     <Layout>
       <div className="page">
-        <h1>User</h1>
-        <main>{JSON.stringify(user)}</main>
+        <h1>Account</h1>
+        <main>
+          {JSON.stringify(user)}
+          <button onClick={logout}>log out</button>
+        </main>
       </div>
     </Layout>
   );
@@ -30,10 +39,18 @@ const AccountPage: React.FC<Props> = ({
 export const getServerSideProps = withAuthUserTokenSSR({
   whenUnauthed: AuthAction.REDIRECT_TO_LOGIN,
 })(async ({ AuthUser }) => {
-  const res = await fetch("http://localhost:3000/api/users");
-  const user = await res.json();
+  const token = await AuthUser.getIdToken().catch((error) => {
+    console.error(error);
+  });
+  const response = await fetch("http://localhost:3000/api/account", {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  const user = await response.json();
   return {
-    props: { authUser: AuthUser, user },
+    props: { user },
   };
 });
 

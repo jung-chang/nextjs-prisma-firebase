@@ -1,9 +1,12 @@
 import Layout from "components/Layout";
-import { AuthAction, withAuthUser } from "next-firebase-auth";
-import firebase from "firebase/app";
 import { useState } from "react";
+import firebase from "firebase/app";
+import { AuthAction, withAuthUser } from "next-firebase-auth";
+import { useRouter } from "next/router";
 
 const LogInForm = () => {
+  const router = useRouter();
+
   const [botField, setBotField] = useState("");
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState("");
@@ -28,12 +31,14 @@ const LogInForm = () => {
       return;
     }
     try {
-      const response = await fetch("http://localhost:3000/api/login", {
-        method: "POST",
-        body: JSON.stringify({ email, password }),
-      });
-      const user = response.json();
-      console.log({ user });
+      const userCredentials = await firebase
+        .auth()
+        .signInWithEmailAndPassword(email, password)
+        .catch((error) => {
+          throw Error(`Failed to sign into firebase: ${error}`);
+        });
+      console.log({ userCredentials });
+      router.push("/account");
     } catch (error: any) {
       console.error(error.message);
       setError("Failed to log in, please try again.");
@@ -71,7 +76,7 @@ const LogInForm = () => {
   );
 };
 
-const LogInPage = () => {
+const LoginPage = () => {
   return (
     <Layout>
       <main>
@@ -81,9 +86,7 @@ const LogInPage = () => {
   );
 };
 
-export default LogInPage;
-
-// export default withAuthUser({
-//   whenAuthed: AuthAction.REDIRECT_TO_APP,
-//   appPageURL: "/account",
-// })(LogInPage);
+export default withAuthUser({
+  whenAuthed: AuthAction.REDIRECT_TO_APP,
+  appPageURL: "/account",
+})(LoginPage);

@@ -12,7 +12,7 @@ export default async function handle(
     await unsetAuthCookies(req, res);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Unexpected error." });
+    return res.status(500).json({ error: "Unexpected error." });
   }
-  res.status(200);
+  return res.status(200).json({ status: true });
 }
